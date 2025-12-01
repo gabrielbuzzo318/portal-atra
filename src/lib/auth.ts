@@ -14,27 +14,28 @@ export type AuthUser = {
 };
 
 export async function login(email: string, password: string) {
-  // 1) tenta achar usuário pelo e-mail
+  // procura o usuário pelo e-mail
   let user = await prisma.user.findUnique({ where: { email } });
 
-  // 2) se não existir e for o e-mail da Ester, cria na hora
+  // se não existir e for o e-mail da Ester, cria na hora
   if (!user && email === 'ester@contabilidade.com') {
     user = await prisma.user.create({
       data: {
         name: 'Ester',
         email,
-        passwordHash: password, // salva o que ela digitou ali mesmo
+        passwordHash: password, // salva a senha em texto puro (MVP)
         role: 'ACCOUNTANT',
       },
     });
   }
 
-  // 3) se ainda assim não tiver usuário, falha
-  if (!user) {
+  if (!user) return null;
+
+  // 🔴 MVP: compara senha direta, sem bcrypt
+  if (password !== user.passwordHash) {
     return null;
   }
 
-  // (por enquanto não vamos validar senha, MVP)
   const payload: AuthUser = {
     id: user.id,
     role: user.role as UserRole,

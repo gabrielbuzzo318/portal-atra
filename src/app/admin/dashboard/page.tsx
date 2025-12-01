@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 type Client = {
   id: string;
@@ -16,6 +17,13 @@ export default function DashboardAdmin() {
   const [newName, setNewName] = useState('');
   const [newEmail, setNewEmail] = useState('');
   const [newPassword, setNewPassword] = useState('');
+
+  const router = useRouter();
+
+  async function handleLogout() {
+    await fetch('/api/auth/logout', { method: 'POST' });
+    router.push('/login');
+  }
 
   useEffect(() => {
     async function load() {
@@ -53,8 +61,20 @@ export default function DashboardAdmin() {
 
   return (
     <main className="p-6 max-w-5xl mx-auto space-y-8">
-      <header className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Clientes</h1>
+      <header className="flex items-center justify-between mb-2">
+        <div>
+          <h1 className="text-2xl font-bold">Clientes</h1>
+          <p className="text-sm text-gray-500">
+            Portal Contábil da Ester
+          </p>
+        </div>
+
+        <button
+          onClick={handleLogout}
+          className="px-3 py-1.5 rounded-lg border text-sm hover:bg-slate-100"
+        >
+          Sair
+        </button>
       </header>
 
       <section className="border rounded-2xl bg-white p-4">

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 type Document = {
   id: string;
@@ -11,6 +12,12 @@ type Document = {
 
 export default function ClienteDocumentos() {
   const [docs, setDocs] = useState<Document[]>([]);
+  const router = useRouter();
+
+  async function handleLogout() {
+    await fetch('/api/auth/logout', { method: 'POST' });
+    router.push('/login');
+  }
 
   useEffect(() => {
     async function load() {
@@ -24,8 +31,21 @@ export default function ClienteDocumentos() {
   }, []);
 
   return (
-    <main className="p-6 max-w-4xl mx-auto">
-      <h1 className="text-2xl font-bold mb-4">Meus documentos</h1>
+    <main className="p-6 max-w-4xl mx-auto space-y-4">
+      <header className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold">Meus documentos</h1>
+          <p className="text-sm text-gray-500">
+            Portal Contábil da Ester
+          </p>
+        </div>
+        <button
+          onClick={handleLogout}
+          className="px-3 py-1.5 rounded-lg border text-sm hover:bg-slate-100"
+        >
+          Sair
+        </button>
+      </header>
 
       {docs.length === 0 && (
         <p className="text-sm text-gray-500">Nenhum documento disponível.</p>

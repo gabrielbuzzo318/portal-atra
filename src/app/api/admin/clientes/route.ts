@@ -16,10 +16,26 @@ export async function POST(req: NextRequest) {
     data: {
       name,
       email,
-      passwordHash: password, // salva em texto puro (igual login usa)
+      passwordHash: password, // salva em texto puro
       role: 'CLIENT',
     },
   });
 
   return NextResponse.json({ client });
+}
+
+export async function GET() {
+  const user = getAuthUser();
+  try {
+    requireRole(user, ['ACCOUNTANT']);
+  } catch (e) {
+    return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
+  }
+
+  const clients = await prisma.user.findMany({
+    where: { role: 'CLIENT' },
+    orderBy: { name: 'asc' },
+  });
+
+  return NextResponse.json({ clients });
 }

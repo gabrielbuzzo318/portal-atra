@@ -9,14 +9,11 @@ async function main() {
     return;
   }
 
-  // senha em texto puro, igual vamos comparar no login
-  const passwordHash = 'senha123';
-
   await prisma.user.create({
     data: {
       name: 'Ester',
       email,
-      passwordHash,
+      passwordHash: 'senha123', // mesma senha que você vai usar no login
       role: 'ACCOUNTANT',
     },
   });
