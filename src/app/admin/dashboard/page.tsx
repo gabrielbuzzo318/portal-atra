@@ -63,15 +63,16 @@ export default function DashboardAdmin() {
     <main className="page">
       <div className="page-shell">
         <header className="page-header">
-          <div className="page-title-group">
-            <h1>Clientes</h1>
-            <p>Gerencie os clientes e envie documentos pelo portal.</p>
-          </div>
+  <div className="page-title-group">
+    <span className="brand-badge">ATRA CONTABILIDADE</span>
+    <h1>Clientes</h1>
+    <p>Gerencie os clientes e envie documentos pelo portal.</p>
+  </div>
 
-          <button onClick={handleLogout} className="btn-outline">
-            Sair
-          </button>
-        </header>
+  <button onClick={handleLogout} className="btn-outline">
+    Sair
+  </button>
+</header>
 
         <section className="grid-2">
           {/* Card de cadastro */}

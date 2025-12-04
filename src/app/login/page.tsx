@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -35,7 +36,19 @@ export default function LoginPage() {
   return (
     <main className="auth-page">
       <div className="auth-card">
-        <h1 className="auth-title">Portal Contábil da Ester</h1>
+        {/* logo + nome da marca */}
+        <div className="brand-inline">
+          <Image
+            src="/logo-atra.png"
+            alt="Logo ATRA Contabilidade"
+            width={32}
+            height={32}
+            className="brand-logo"
+          />
+          <span className="brand-inline-text">ATRA CONTABILIDADE</span>
+        </div>
+
+        <h1 className="auth-title">Portal de Documentos</h1>
         <p className="auth-subtitle">
           Acesse para visualizar e enviar documentos.
         </p>

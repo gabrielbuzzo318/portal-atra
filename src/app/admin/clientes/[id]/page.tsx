@@ -14,6 +14,7 @@ type Document = {
   originalName: string;
   type: 'NF' | 'BOLETO' | 'OTHER';
   createdAt: string;
+  competencia?: string | null;
 };
 
 type ApiResponse = {
@@ -24,13 +25,21 @@ type ApiResponse = {
 function formatPeriodKey(dateStr: string) {
   const d = new Date(dateStr);
   const year = d.getFullYear();
-  const month = d.getMonth() + 1; // 0-11
-  return `${year}-${String(month).padStart(2, '0')}`; // ex: 2025-01
+  const month = d.getMonth() + 1;
+  return `${year}-${String(month).padStart(2, '0')}`; // 2025-01
 }
 
 function formatPeriodLabel(periodKey: string) {
   const [year, month] = periodKey.split('-');
   return `${month}/${year}`; // 01/2025
+}
+
+// usa competência se existir, senão cai na data de envio
+function getDocPeriodKey(doc: Document) {
+  if (doc.competencia && doc.competencia.includes('-')) {
+    return doc.competencia;
+  }
+  return formatPeriodKey(doc.createdAt);
 }
 
 export default function ClienteDocsPage() {
@@ -44,6 +53,7 @@ export default function ClienteDocsPage() {
 
   const [file, setFile] = useState<File | null>(null);
   const [docType, setDocType] = useState<'NF' | 'BOLETO' | 'OTHER'>('NF');
+  const [competencia, setCompetencia] = useState<string>(''); // YYYY-MM
   const [uploading, setUploading] = useState(false);
 
   const [selectedPeriod, setSelectedPeriod] = useState<string>(''); // '' = todos
@@ -76,6 +86,7 @@ export default function ClienteDocsPage() {
     formData.append('file', file);
     formData.append('clientId', clientId);
     formData.append('type', docType);
+    formData.append('competencia', competencia); // << NOVO
 
     const res = await fetch('/api/upload', {
       method: 'POST',
@@ -86,6 +97,7 @@ export default function ClienteDocsPage() {
       const data = await res.json();
       setDocs(prev => [data.document, ...prev]);
       setFile(null);
+      setCompetencia('');
       const input = document.getElementById('file-input') as HTMLInputElement;
       if (input) input.value = '';
     }
@@ -93,32 +105,33 @@ export default function ClienteDocsPage() {
     setUploading(false);
   }
 
-  // monta lista de períodos disponíveis com base nos documentos
-  const periods = Array.from(
-    new Set(docs.map(d => formatPeriodKey(d.createdAt))),
-  ).sort((a, b) => (a > b ? -1 : 1)); // mais recente primeiro
+  const periods = Array.from(new Set(docs.map(getDocPeriodKey))).sort((a, b) =>
+    a > b ? -1 : 1,
+  );
 
   const filteredDocs =
     selectedPeriod === ''
       ? docs
-      : docs.filter(d => formatPeriodKey(d.createdAt) === selectedPeriod);
+      : docs.filter(d => getDocPeriodKey(d) === selectedPeriod);
 
   return (
     <main className="page">
       <div className="page-shell">
         <header className="page-header">
-          <div className="page-title-group">
-            <h1>Documentos {client ? `– ${client.name}` : ''}</h1>
-            <p>Envie notas fiscais e boletos para este cliente.</p>
-          </div>
+  <div className="page-title-group">
+    <span className="brand-badge">ATRA CONTABILIDADE</span>
+    <h1>Documentos {client ? `– ${client.name}` : ''}</h1>
+    <p>Envie notas fiscais e boletos para este cliente.</p>
+  </div>
 
-          <button
-            onClick={() => router.push('/admin/dashboard')}
-            className="btn-outline"
-          >
-            Voltar
-          </button>
-        </header>
+  <button
+    onClick={() => router.push('/admin/dashboard')}
+    className="btn-outline"
+  >
+    Voltar
+  </button>
+</header>
+
 
         <div className="grid-2">
           {/* Upload */}
@@ -138,6 +151,16 @@ export default function ClienteDocsPage() {
                   <option value="BOLETO">Boleto</option>
                   <option value="OTHER">Outro</option>
                 </select>
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Competência</label>
+                <input
+                  type="month"
+                  className="form-input"
+                  value={competencia}
+                  onChange={e => setCompetencia(e.target.value)}
+                />
               </div>
 
               <div className="form-group">
@@ -191,31 +214,44 @@ export default function ClienteDocsPage() {
 
                 {filteredDocs.length > 0 && (
                   <ul className="list">
-                    {filteredDocs.map(doc => (
-                      <li key={doc.id} className="list-item">
-                        <div className="list-item-main">
-                          <p className="name">{doc.originalName}</p>
-                          <p className="email">
-                            {new Date(doc.createdAt).toLocaleString('pt-BR')}
-                          </p>
-                        </div>
+                    {filteredDocs.map(doc => {
+                      const periodKey = getDocPeriodKey(doc);
+                      const compLabel = periodKey
+                        ? formatPeriodLabel(periodKey)
+                        : null;
 
-                        <span className="tag">
-                          {doc.type === 'NF'
-                            ? 'Nota Fiscal'
-                            : doc.type === 'BOLETO'
-                            ? 'Boleto'
-                            : 'Outro'}
-                        </span>
+                      return (
+                        <li key={doc.id} className="list-item">
+                          <div className="list-item-main">
+                            <p className="name">{doc.originalName}</p>
+                            <p className="email">
+                              {compLabel
+                                ? `Competência: ${compLabel} · Enviado em ${new Date(
+                                    doc.createdAt,
+                                  ).toLocaleString('pt-BR')}`
+                                : new Date(
+                                    doc.createdAt,
+                                  ).toLocaleString('pt-BR')}
+                            </p>
+                          </div>
 
-                        <a
-                          href={`/api/download/${doc.id}`}
-                          className="link-small"
-                        >
-                          Baixar
-                        </a>
-                      </li>
-                    ))}
+                          <span className="tag">
+                            {doc.type === 'NF'
+                              ? 'Nota Fiscal'
+                              : doc.type === 'BOLETO'
+                              ? 'Boleto'
+                              : 'Outro'}
+                          </span>
+
+                          <a
+                            href={`/api/download/${doc.id}`}
+                            className="link-small"
+                          >
+                            Baixar
+                          </a>
+                        </li>
+                      );
+                    })}
                   </ul>
                 )}
               </>

@@ -2,8 +2,8 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'Portal Contábil Ester',
-  description: 'Portal de documentos contábeis para clientes da Ester',
+  title: 'ATRA Contabilidade - Portal',
+  description: 'Portal de documentos da ATRA Contabilidade',
 };
 
 export default function RootLayout({

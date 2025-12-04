@@ -8,10 +8,14 @@ type Document = {
   originalName: string;
   type: 'NF' | 'BOLETO' | 'OTHER';
   createdAt: string;
+  competencia?: string | null;
 };
 
-function formatPeriodKey(dateStr: string) {
-  const d = new Date(dateStr);
+function formatPeriodKeyFromDoc(doc: Document) {
+  if (doc.competencia && doc.competencia.includes('-')) {
+    return doc.competencia;
+  }
+  const d = new Date(doc.createdAt);
   const year = d.getFullYear();
   const month = d.getMonth() + 1;
   return `${year}-${String(month).padStart(2, '0')}`;
@@ -45,28 +49,30 @@ export default function ClienteDocumentos() {
   }, []);
 
   const periods = Array.from(
-    new Set(docs.map(d => formatPeriodKey(d.createdAt))),
+    new Set(docs.map(formatPeriodKeyFromDoc)),
   ).sort((a, b) => (a > b ? -1 : 1));
 
   const filteredDocs =
     selectedPeriod === ''
       ? docs
-      : docs.filter(d => formatPeriodKey(d.createdAt) === selectedPeriod);
+      : docs.filter(d => formatPeriodKeyFromDoc(d) === selectedPeriod);
 
   return (
     <main className="page">
       <div className="page-shell">
-        <header className="page-header">
-          <div className="page-title-group">
-            <h1>Meus documentos</h1>
-            <p>
-              Acesse suas notas fiscais e boletos enviados pela contabilidade.
-            </p>
-          </div>
-          <button onClick={handleLogout} className="btn-outline">
-            Sair
-          </button>
-        </header>
+<header className="page-header">
+  <div className="page-title-group">
+    <span className="brand-badge">ATRA CONTABILIDADE</span>
+    <h1>Meus documentos</h1>
+    <p>
+      Acesse suas notas fiscais e boletos enviados pela contabilidade.
+    </p>
+  </div>
+  <button onClick={handleLogout} className="btn-outline">
+    Sair
+  </button>
+</header>
+
 
         <div className="card">
           <div className="filters">
@@ -91,31 +97,42 @@ export default function ClienteDocumentos() {
 
           {filteredDocs.length > 0 && (
             <ul className="list">
-              {filteredDocs.map(doc => (
-                <li key={doc.id} className="list-item">
-                  <div className="list-item-main">
-                    <p className="name">{doc.originalName}</p>
-                    <p className="email">
-                      {new Date(doc.createdAt).toLocaleString('pt-BR')}
-                    </p>
-                  </div>
+              {filteredDocs.map(doc => {
+                const periodKey = formatPeriodKeyFromDoc(doc);
+                const compLabel = formatPeriodLabel(periodKey);
 
-                  <span className="tag">
-                    {doc.type === 'NF'
-                      ? 'Nota Fiscal'
-                      : doc.type === 'BOLETO'
-                      ? 'Boleto'
-                      : 'Outro'}
-                  </span>
+                return (
+                  <li key={doc.id} className="list-item">
+                    <div className="list-item-main">
+                      <p className="name">{doc.originalName}</p>
+                      <p className="email">
+                        {doc.competencia
+                          ? `Competência: ${compLabel} · Enviado em ${new Date(
+                              doc.createdAt,
+                            ).toLocaleString('pt-BR')}`
+                          : new Date(
+                              doc.createdAt,
+                            ).toLocaleString('pt-BR')}
+                      </p>
+                    </div>
 
-                  <a
-                    href={`/api/download/${doc.id}`}
-                    className="link-small"
-                  >
-                    Baixar
-                  </a>
-                </li>
-              ))}
+                    <span className="tag">
+                      {doc.type === 'NF'
+                        ? 'Nota Fiscal'
+                        : doc.type === 'BOLETO'
+                        ? 'Boleto'
+                        : 'Outro'}
+                    </span>
+
+                    <a
+                      href={`/api/download/${doc.id}`}
+                      className="link-small"
+                    >
+                      Baixar
+                    </a>
+                  </li>
+                );
+              })}
             </ul>
           )}
         </div>

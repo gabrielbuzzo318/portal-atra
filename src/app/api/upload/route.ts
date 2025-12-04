@@ -19,9 +19,17 @@ export async function POST(req: NextRequest) {
   const file = formData.get('file') as File | null;
   const clientId = formData.get('clientId') as string;
   const type = (formData.get('type') as string) || 'OTHER';
+  const rawCompetencia = formData.get('competencia') as string | null;
 
   if (!file || !clientId) {
     return NextResponse.json({ error: 'Dados incompletos' }, { status: 400 });
+  }
+
+  // normaliza competência: vem "YYYY-MM" do input type="month"
+  let competencia: string | null = null;
+  if (rawCompetencia && rawCompetencia.trim() !== '') {
+    // se vier "YYYY-MM" já serve
+    competencia = rawCompetencia.trim();
   }
 
   const bytes = await file.arrayBuffer();
@@ -44,6 +52,7 @@ export async function POST(req: NextRequest) {
       originalName: file.name,
       storedName: randomName,
       path: filePath,
+      competencia: competencia ?? undefined,
     },
   });
 

@@ -1,26 +1,3 @@
-datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
-}
-
-generator client {
-  provider = "prisma-client-js"
-}
-
-model User {
-  id           String     @id @default(cuid())
-  name         String
-  email        String     @unique
-  passwordHash String
-
-  role         String     @default("CLIENT") // ACCOUNTANT | CLIENT
-
-  documents    Document[] @relation("ClientDocuments")
-  uploads      Document[] @relation("UploadedDocuments")
-
-  createdAt    DateTime   @default(now())
-}
-
 model Document {
   id           String   @id @default(cuid())
 
@@ -35,5 +12,7 @@ model Document {
   originalName String
   storedName   String
   path         String
-  createdAt    DateTime  @default(now())
+  createdAt    DateTime @default(now())
+
+  competencia  String?  // <-- NOVO: competência no formato YYYY-MM (ex: 2025-01)
 }
