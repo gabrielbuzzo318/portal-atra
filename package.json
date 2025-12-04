@@ -4,14 +4,17 @@
   "private": true,
   "scripts": {
   "dev": "next dev",
-  "build": "prisma generate && next build",
-    "start": "next start",
+  "build": "prisma generate && prisma migrate deploy && prisma db seed && next build",
+  "start": "next start",
     "lint": "next lint",
     "prisma:migrate": "prisma migrate dev",
     "prisma:generate": "prisma generate",
     "prisma:studio": "prisma studio",
     "db:seed": "ts-node prisma/seed.ts"
-  },
+  },"prisma": {
+  "seed": "node prisma/seed.js"
+},
+
   "dependencies": {
     "@prisma/client": "^5.19.1",
     "bcryptjs": "^2.4.3",
