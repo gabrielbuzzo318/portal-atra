@@ -119,7 +119,7 @@ export default function ClienteDocsPage() {
       <div className="page-shell">
         <header className="page-header">
   <div className="page-title-group">
-    <span className="brand-badge">ATRA CONTABILIDADE</span>
+    <span className="brand-badge">ATRIA CONTABILIDADE</span>
     <h1>Documentos {client ? `– ${client.name}` : ''}</h1>
     <p>Envie notas fiscais e boletos para este cliente.</p>
   </div>

@@ -1,32 +1,35 @@
-import { prisma } from '../src/lib/prisma';
+import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcryptjs';
+
+const prisma = new PrismaClient();
 
 async function main() {
-  const email = 'ester@contabilidade.com';
+  const email = "ester@contabilidade.com";
+  const password = "123456";
+
+  const hashed = await bcrypt.hash(password, 10);
+
+  // Criar usuária se não existir
   const existing = await prisma.user.findUnique({ where: { email } });
 
-  if (existing) {
-    console.log('Usuária Ester já existe. Nada a fazer.');
-    return;
+  if (!existing) {
+    await prisma.user.create({
+      data: {
+        name: "Ester Contabilidade",
+        email,
+        password: hashed,
+        role: "ACCOUNTANT"
+      }
+    });
+    console.log("Usuária Ester criada!");
+  } else {
+    console.log("Usuária Ester já existe.");
   }
-
-  await prisma.user.create({
-    data: {
-      name: 'Ester',
-      email,
-      passwordHash: 'senha123', // mesma senha que você vai usar no login
-      role: 'ACCOUNTANT',
-    },
-  });
-
-  console.log('Usuária Ester criada com sucesso!');
 }
 
 main()
-  .then(async () => {
-    await prisma.$disconnect();
-  })
-  .catch(async e => {
+  .then(() => prisma.$disconnect())
+  .catch(e => {
     console.error(e);
-    await prisma.$disconnect();
-    process.exit(1);
+    prisma.$disconnect();
   });

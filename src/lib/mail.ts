@@ -4,7 +4,7 @@ const smtpHost = process.env.SMTP_HOST;
 const smtpPort = Number(process.env.SMTP_PORT || 587);
 const smtpUser = process.env.SMTP_USER;
 const smtpPass = process.env.SMTP_PASS;
-const fromEmail = process.env.MAIL_FROM || 'nao-responda@atra.com.br';
+const fromEmail = process.env.MAIL_FROM || 'nao-responda@atria.com.br';
 
 if (!smtpHost || !smtpUser || !smtpPass) {
   console.warn(
@@ -37,21 +37,21 @@ export async function sendDocumentEmailNotification(params: {
 
   const { to, clientName, docName } = params;
 
-  const subject = 'Novo documento disponível - ATRA Contabilidade';
+  const subject = 'Novo documento disponível - ATRIA Contabilidade';
   const text = `Olá, ${clientName}!
 
-A ATRA Contabilidade acabou de disponibilizar um novo documento para você:
+A ATRIA Contabilidade acabou de disponibilizar um novo documento para você:
 
 - Arquivo: ${docName}
 
-Acesse o Portal ATRA Contabilidade para visualizar e baixar:
+Acesse o Portal ATRIA Contabilidade para visualizar e baixar:
 
 https://seu-portal-aqui.com.br/login
 
 (até colocar o domínio certo, pode usar o link local de desenvolvimento)
 
 Abraços,
-ATRA Contabilidade`;
+ATRIA Contabilidade`;
 
   await transporter.sendMail({
     from: fromEmail,

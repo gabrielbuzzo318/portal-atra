@@ -64,7 +64,7 @@ export default function DashboardAdmin() {
       <div className="page-shell">
         <header className="page-header">
   <div className="page-title-group">
-    <span className="brand-badge">ATRA CONTABILIDADE</span>
+    <span className="brand-badge">ATRIA CONTABILIDADE</span>
     <h1>Clientes</h1>
     <p>Gerencie os clientes e envie documentos pelo portal.</p>
   </div>

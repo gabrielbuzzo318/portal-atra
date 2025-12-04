@@ -40,12 +40,12 @@ export default function LoginPage() {
         <div className="brand-inline">
           <Image
             src="/logo-atra.png"
-            alt="Logo ATRA Contabilidade"
+            alt="Logo ATRIA Contabilidade"
             width={32}
             height={32}
             className="brand-logo"
           />
-          <span className="brand-inline-text">ATRA CONTABILIDADE</span>
+          <span className="brand-inline-text">ATRIA CONTABILIDADE</span>
         </div>
 
         <h1 className="auth-title">Portal de Documentos</h1>

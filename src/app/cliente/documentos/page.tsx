@@ -62,7 +62,7 @@ export default function ClienteDocumentos() {
       <div className="page-shell">
 <header className="page-header">
   <div className="page-title-group">
-    <span className="brand-badge">ATRA CONTABILIDADE</span>
+    <span className="brand-badge">ATRIA CONTABILIDADE</span>
     <h1>Meus documentos</h1>
     <p>
       Acesse suas notas fiscais e boletos enviados pela contabilidade.
