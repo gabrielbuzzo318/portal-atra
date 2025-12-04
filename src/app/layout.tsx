@@ -2,8 +2,8 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'ATRA Contabilidade - Portal',
-  description: 'Portal de documentos da ATRA Contabilidade',
+  title: 'ATRIA Contabilidade - Portal',
+  description: 'Portal de documentos da ATRIA Contabilidade',
 };
 
 export default function RootLayout({
