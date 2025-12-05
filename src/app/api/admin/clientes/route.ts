@@ -3,8 +3,38 @@ import { prisma } from '@/lib/prisma';
 import { getAuthUser, requireRole } from '@/lib/auth';
 import bcrypt from 'bcryptjs';
 
-// ... (GET fica igual ao que já está)
+// GET /api/admin/clientes  -> lista clientes
+export async function GET() {
+  try {
+    const user = getAuthUser();
+    requireRole(user, ['ACCOUNTANT']); // só a Ester vê isso
 
+    // pega todo mundo que NÃO é contador
+    const clients = await prisma.user.findMany({
+      where: {
+        NOT: {
+          role: 'ACCOUNTANT',
+        },
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+      },
+      orderBy: { name: 'asc' },
+    });
+
+    return NextResponse.json({ clients });
+  } catch (err) {
+    console.error('Erro ao listar clientes:', err);
+    return NextResponse.json(
+      { error: 'Erro ao listar clientes' },
+      { status: 500 },
+    );
+  }
+}
+
+// POST /api/admin/clientes  -> cria cliente novo
 export async function POST(req: NextRequest) {
   try {
     const user = getAuthUser();
@@ -12,7 +42,6 @@ export async function POST(req: NextRequest) {
 
     const body = await req.json();
 
-    // aceita vários nomes possíveis que o front possa mandar
     const name = (body.name || body.nome) as string | undefined;
     const email = body.email as string | undefined;
 
@@ -48,6 +77,9 @@ export async function POST(req: NextRequest) {
         name,
         email,
         passwordHash: hash,
+        // se o role do schema for enum, a gente assumiu que 'CLIENT' é aceitável;
+        // mas como o GET pega "todo mundo que não é ACCOUNTANT",
+        // mesmo que salve outro valor o cliente aparece.
         role: 'CLIENT',
       },
     });
