@@ -23,7 +23,19 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
+    try {
 
+    }catch (err: any) {
+    console.error('Erro no upload:', err);
+
+    return NextResponse.json(
+      {
+        error: 'Erro ao enviar documento',
+        details: String(err?.message || err),  // 👈 devolve o erro legível
+      },
+      { status: 500 }
+    );
+  }
     // normaliza o tipo para o enum do Prisma: 'NF' | 'BOLETO' | 'OTHER'
     let type: 'NF' | 'BOLETO' | 'OTHER' = 'OTHER';
 
